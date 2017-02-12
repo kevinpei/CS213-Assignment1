@@ -40,12 +40,12 @@
                      <children>
                         <Label text="Name" />
                         <Label text="Artist" GridPane.rowIndex="1" />
-                        <Label text="Year" GridPane.rowIndex="2" />
-                        <Label text="Album" GridPane.rowIndex="3" />
-                        <TextField GridPane.columnIndex="1" />
-                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Label text="Album" GridPane.rowIndex="2" />
+                        <Label text="Year" GridPane.rowIndex="3" />
+                        <TextField fx:id="nameText" GridPane.columnIndex="1" />
+                        <TextField fx:id="artistText" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="albumText" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="yearText" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                      </children>
                   </GridPane>
                   <Label layoutX="81.0" layoutY="65.0" text="Song Details" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
