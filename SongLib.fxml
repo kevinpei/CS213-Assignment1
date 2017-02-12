@@ -19,7 +19,7 @@
                <children>
                   <TableView fx:id="songTable" layoutX="130.0" layoutY="251.0" maxWidth="303.0" prefHeight="598.0" prefWidth="303.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columns>
-                      <TableColumn fx:id="nameColumn" prefWidth="75.0" text="Name" />
+                      <TableColumn fx:id="nameColumn" prefWidth="290.0" resizable="false" text="Name" />
                     </columns>
                   </TableView>
                </children>
