@@ -9,6 +9,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.collections.*;
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 
 public class MainApp extends Application {
 
@@ -20,8 +28,38 @@ public class MainApp extends Application {
     }
 
     public ObservableList<Song> getSongData() {
+        //from this line
+        try {
+            File file = new File("songList.xml");
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document document = db.parse(file);
+            NodeList nList = document.getElementsByTagName("List");
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+
+                Node nNode = nList.item(temp);
+
+                //System.out.println("\nCurrent Element :" + nNode.getNodeName());
+                //TODO Catch all types of listed songs, right now only can get complete information songs!
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+                    Element eElement = (Element) nNode;
+
+                   // eElement.getAttribute("Song");
+                   String title = eElement.getElementsByTagName("Title").item(0).getTextContent();
+                   String artist =eElement.getElementsByTagName("Artist").item(0).getTextContent();
+                   String album = eElement.getElementsByTagName("Album").item(0).getTextContent();
+                   int year =Integer.parseInt(eElement.getElementsByTagName("Year").item(0).getTextContent());
+                   songs.add(new Song(title,artist,album,year));
+                }
+            }
+        }catch (Exception e) {
+        e.printStackTrace();
+    }
+    //to this line was added to try and add songs from xml document, if not right remove!
         return songs;
     }
+
 
     @Override
     public void start(Stage primaryStage) {

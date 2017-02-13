@@ -1,0 +1,21 @@
+<?xml version = "1.0"?>
+<List>
+  <Song>
+    <Title> A </Title>
+    <Artist> B </Artist>
+    <Album> C </Album>
+    <Year> 1969 </Year>
+  </Song>
+  <Song>
+    <Title> B </Title>
+    <Artist> C </Artist>
+    <Album> D </Album>
+    <Year> 1970 </Year>
+  </Song>
+  <Song>
+    <Title> AA </Title>
+    <Artist> BB </Artist>
+    <Album> CC </Album>
+    <Year> 1971 </Year>
+  </Song>x
+</List>
