@@ -15,18 +15,14 @@ public class MainApp extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
     private ObservableList<Song> songs = FXCollections.observableArrayList();
-  
+
     public MainApp() {
-    	songs.add(new Song("Whof caress", "Bluh", "Yeh", 1999));
-    	songs.add(new Song("Dumb", "ASD", "No", 341));
-    	songs.add(new Song("Yesterno", "FGH", "ASD", 1232));
-    	songs.add(new Song("Dubior", "ZXC", "ssg", 53215));
     }
-    
+
     public ObservableList<Song> getSongData() {
         return songs;
     }
-    
+
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -78,7 +74,7 @@ public class MainApp extends Application {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Returns the main stage.
      * @return
@@ -87,8 +83,8 @@ public class MainApp extends Application {
         return primaryStage;
     }
 
-    
-    
+
+
     public static void main(String[] args) {
         launch(args);
     }

@@ -50,4 +50,24 @@ public class Song {
 	public int getYear() {
 		return this.Year;
 	}
+	public void setName(String name) {
+		this.name = new SimpleStringProperty(name);
+		this.Name = name;
+		System.out.println(this.name);
+	}
+	public void setAlbum(String album) {
+		this.album = new SimpleStringProperty(album);
+		this.Album= album;
+		System.out.println(this.album);
+	}
+	public void setArtist(String artist) {
+		this.artist = new SimpleStringProperty(artist);
+		this.Artist = artist;
+		System.out.println(this.artist);
+	}
+	public void setYear(int year) {
+		this.year = new SimpleIntegerProperty(year);
+		this.Year = year;
+		System.out.println(this.year);
+	}
 }
