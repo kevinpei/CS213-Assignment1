@@ -4,12 +4,8 @@ import java.util.*;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import songLib.address.MainApp;
 import songLib.address.Song;
 
@@ -67,17 +63,24 @@ public class SongLib {
 
     @FXML private void deleteSong() {
         int selectedIndex = songTable.getSelectionModel().getSelectedIndex();
-        if (selectedIndex >= 0) {
-            songTable.getItems().remove(selectedIndex);
-        } else {
-            // Nothing selected.
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.initOwner(mainApp.getPrimaryStage());
-            alert.setTitle("No Selection");
-            alert.setHeaderText("No Song Selected");
-            alert.setContentText("Please select a song in the table.");
+        Alert confirm = new Alert(AlertType.CONFIRMATION);
+        confirm.initOwner(mainApp.getPrimaryStage());
+        confirm.setTitle("Delete?");
+        confirm.setHeaderText("Do you wish to delete the selected song?");
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            if (selectedIndex >= 0) {
+                songTable.getItems().remove(selectedIndex);
+            } else {
+                // Nothing selected.
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.initOwner(mainApp.getPrimaryStage());
+                alert.setTitle("No Selection");
+                alert.setHeaderText("No Song Selected");
+                alert.setContentText("Please select a song in the table.");
 
-            alert.showAndWait();
+                alert.showAndWait();
+            }
         }
     }
 
@@ -106,18 +109,25 @@ public class SongLib {
             String name = nameText.getText();
             String artist = artistText.getText();
             String album = albumText.getText();
-            if (yearText.getText().length() != 0) {
-                int year = Integer.parseInt(yearText.getText());
-                if (album == null) {
-                    linearAddition(songTable.getItems(), new Song(name, artist, year));
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.initOwner(mainApp.getPrimaryStage());
+            alert.setTitle("Add?");
+            alert.setHeaderText("Do you wish to add a song with the given characteristics?");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK) {
+                if (yearText.getText().length() != 0) {
+                    int year = Integer.parseInt(yearText.getText());
+                    if (album == null) {
+                        linearAddition(songTable.getItems(), new Song(name, artist, year));
+                    } else {
+                        linearAddition(songTable.getItems(), new Song(name, artist, album, year));
+                    }
                 } else {
-                    linearAddition(songTable.getItems(), new Song(name, artist, album, year));
-                }
-            } else {
-                if (album == null) {
-                    linearAddition(songTable.getItems(), new Song(name, artist));
-                } else {
-                    linearAddition(songTable.getItems(), new Song(name, artist, album));
+                    if (album == null) {
+                        linearAddition(songTable.getItems(), new Song(name, artist));
+                    } else {
+                        linearAddition(songTable.getItems(), new Song(name, artist, album));
+                    }
                 }
             }
         }
@@ -131,22 +141,29 @@ public class SongLib {
         String album = albumText.getText();
         int year = Integer.parseInt(yearText.getText());
         if (selectedIndex >= 0){
-            if(isInputValid()){
-                if (yearText.getText().length() != 0) {
-                    if (album == null) {
-                        songTable.getItems().remove(selectedIndex);
-                        linearAddition(songTable.getItems(), new Song(name, artist, year));
+            if(isInputValid()) {
+                Alert alert = new Alert(AlertType.CONFIRMATION);
+                alert.initOwner(mainApp.getPrimaryStage());
+                alert.setTitle("Edit?");
+                alert.setHeaderText("Do you wish to edit the selected song?");
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    if (yearText.getText().length() != 0) {
+                        if (album == null) {
+                            songTable.getItems().remove(selectedIndex);
+                            linearAddition(songTable.getItems(), new Song(name, artist, year));
+                        } else {
+                            songTable.getItems().remove(selectedIndex);
+                            linearAddition(songTable.getItems(), new Song(name, artist, album, year));
+                        }
                     } else {
-                        songTable.getItems().remove(selectedIndex);
-                        linearAddition(songTable.getItems(), new Song(name, artist, album, year));
-                    }
-                } else {
-                    if (album == null) {
-                        songTable.getItems().remove(selectedIndex);
-                        linearAddition(songTable.getItems(), new Song(name, artist));
-                    } else {
-                        songTable.getItems().remove(selectedIndex);
-                        linearAddition(songTable.getItems(), new Song(name, artist, album));
+                        if (album == null) {
+                            songTable.getItems().remove(selectedIndex);
+                            linearAddition(songTable.getItems(), new Song(name, artist));
+                        } else {
+                            songTable.getItems().remove(selectedIndex);
+                            linearAddition(songTable.getItems(), new Song(name, artist, album));
+                        }
                     }
                 }
             }
