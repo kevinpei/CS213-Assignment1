@@ -7,8 +7,6 @@
       <change type="DELETED" beforePath="$PROJECT_DIR$/src/SongLib.java" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/src/view/RootLayout.fxml" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/src/view/SongLib.fxml" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/CS213-Assignment1.iml" afterPath="$PROJECT_DIR$/.idea/CS213-Assignment1.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -36,8 +34,8 @@
       <file leaf-file-name="SongLib.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/songLib/address/SongLib.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="15" column="13" lean-forward="false" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
+            <state relative-caret-position="495">
+              <caret line="44" column="50" lean-forward="true" selection-start-line="44" selection-start-column="50" selection-end-line="44" selection-end-column="50" />
               <folding />
             </state>
           </provider>
@@ -524,8 +522,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/songLib/address/SongLib.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="15" column="13" lean-forward="false" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
+        <state relative-caret-position="495">
+          <caret line="44" column="50" lean-forward="true" selection-start-line="44" selection-start-column="50" selection-end-line="44" selection-end-column="50" />
           <folding />
         </state>
       </provider>
