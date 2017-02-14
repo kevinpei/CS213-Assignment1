@@ -104,8 +104,15 @@ public class SongLib {
         }
         int i = 0;
         while (i < list.size()) {
-            if (s.getName().compareTo(list.get(i).getName()) == 0 && s.getArtist().compareTo(list.get(i).getArtist()) == 0) {
-                return -1;
+            if (s.getName().compareTo(list.get(i).getName()) == 0) {
+            	if (s.getArtist().compareTo(list.get(i).getArtist()) == 0) {
+            		return -1;
+            	} else {
+            		if (s.getArtist().compareTo(list.get(i).getArtist()) < 0) {
+            			list.add(i, s);
+                        return i;
+            		}
+            	}
             }
             if (s.getName().compareTo(list.get(i).getName()) < 0) {
                 list.add(i, s);
