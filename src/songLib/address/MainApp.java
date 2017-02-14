@@ -35,7 +35,7 @@ public class MainApp extends Application {
     }
 
     public ObservableList<Song> getSongData() {
-        File file = new File("/Users/adosreis/Documents/CS213-Assignment1/src/songLib/address/songList.xml");
+        File file = new File("src/songLib/address/songList.xml");
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -115,9 +115,9 @@ public class MainApp extends Application {
 
     @Override
     public void stop() {
-        File file = new File("/Users/adosreis/Documents/CS213-Assignment1/src/songLib/address/songList.xml");
+        File file = new File("src/songLib/address/songList.xml");
         file.delete();
-        ObservableList<Song> exitList = getSongData();
+        ObservableList<Song> exitList = songs;
         try {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -157,7 +157,6 @@ public class MainApp extends Application {
             StreamResult result = new StreamResult(
                     new FileOutputStream(file, false));
             transformer.transform(source, result);
-            System.out.println("File saved!");
             } catch (ParserConfigurationException pce) {
                 pce.printStackTrace();
             } catch (TransformerException tfe) {

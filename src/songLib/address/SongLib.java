@@ -263,7 +263,7 @@ public class SongLib {
         }
     }
     
-    public ObservableList<Song> returnSongList(){
+    @FXML public ObservableList<Song> returnSongList(){
         return songTable.getItems();
     }
 
