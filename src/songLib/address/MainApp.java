@@ -29,7 +29,6 @@ import org.w3c.dom.NodeList;
 public class MainApp extends Application {
 
     private Stage primaryStage;
-    private BorderPane rootLayout;
     private ObservableList<Song> songs = FXCollections.observableArrayList();
 
     public MainApp() {
@@ -78,32 +77,11 @@ public class MainApp extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("SongLib");
 
-        initRootLayout();
-
         showSongOverview();
     }
 
     /**
-     * Initializes the root layout.
-     */
-    public void initRootLayout() {
-        try {
-            // Load root layout from fxml file.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("view/RootLayout.fxml"));
-            rootLayout = (BorderPane) loader.load();
-
-            // Show the scene containing the root layout.
-            Scene scene = new Scene(rootLayout);
-            primaryStage.setScene(scene);
-            primaryStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Shows the person overview inside the root layout.
+     * Shows the song overview.
      */
 
     public void showSongOverview() {
@@ -114,7 +92,9 @@ public class MainApp extends Application {
             AnchorPane songOverview = (AnchorPane) loader.load();
 
             // Set person overview into the center of root layout.
-            rootLayout.setCenter(songOverview);
+            Scene scene = new Scene(songOverview);
+            primaryStage.setScene(scene);
+            primaryStage.show();
 
             // Give the controller access to the main app.
             SongLib controller = loader.getController();
