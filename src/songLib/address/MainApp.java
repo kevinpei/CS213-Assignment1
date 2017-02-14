@@ -1,6 +1,6 @@
 package songLib.address;
 
-import java.io.IOException;
+import java.io.*;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -9,9 +9,17 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.collections.*;
-import java.io.File;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -28,13 +36,12 @@ public class MainApp extends Application {
     }
 
     public ObservableList<Song> getSongData() {
-        //from this line
+        File file = new File("/Users/adosreis/Documents/CS213-Assignment1/src/songLib/address/songList.xml");
         try {
-            File file = new File("songList.xml");
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document document = db.parse(file);
-            NodeList nList = document.getElementsByTagName("List");
+            NodeList nList = document.getElementsByTagName("Song");
             for (int temp = 0; temp < nList.getLength(); temp++) {
 
                 Node nNode = nList.item(temp);
@@ -47,16 +54,21 @@ public class MainApp extends Application {
 
                    // eElement.getAttribute("Song");
                    String title = eElement.getElementsByTagName("Title").item(0).getTextContent();
-                   String artist =eElement.getElementsByTagName("Artist").item(0).getTextContent();
+                   String artist = eElement.getElementsByTagName("Artist").item(0).getTextContent();
                    String album = eElement.getElementsByTagName("Album").item(0).getTextContent();
-                   int year =Integer.parseInt(eElement.getElementsByTagName("Year").item(0).getTextContent());
+                   int year;
+                   if(eElement.getElementsByTagName("Year").item(0).getTextContent().length() != 0) {
+                       year = Integer.parseInt(eElement.getElementsByTagName("Year").item(0).getTextContent());
+                   }
+                   else{
+                       year = 0;
+                   }
                    songs.add(new Song(title,artist,album,year));
                 }
             }
         }catch (Exception e) {
         e.printStackTrace();
     }
-    //to this line was added to try and add songs from xml document, if not right remove!
         return songs;
     }
 
@@ -119,6 +131,60 @@ public class MainApp extends Application {
      */
     public Stage getPrimaryStage() {
         return primaryStage;
+    }
+
+    @Override
+    public void stop() {
+        File file = new File("/Users/adosreis/Documents/CS213-Assignment1/src/songLib/address/songList.xml");
+        file.delete();
+        ObservableList<Song> exitList = getSongData();
+        try {
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.newDocument();
+        Element rootElement = doc.createElement("List");
+        doc.appendChild(rootElement);
+        for (Song song : exitList) {
+            String title = song.getName();
+            String artist = song.getArtist();
+            String album = song.getAlbum();
+            int year = song.getYear();
+            String yearStr;
+            if (year == 0) {
+                yearStr = "";
+            } else {
+                yearStr = Integer.toString(year);
+            }
+
+            Element Song = doc.createElement("Song");
+            rootElement.appendChild(Song);
+            Element Title = doc.createElement("Title");
+            Title.appendChild(doc.createTextNode(title));
+            Song.appendChild(Title);
+            Element Artist = doc.createElement("Artist");
+            Artist.appendChild(doc.createTextNode(artist));
+            Song.appendChild(Artist);
+            Element Album = doc.createElement("Album");
+            Album.appendChild(doc.createTextNode(album));
+            Song.appendChild(Album);
+            Element Year = doc.createElement("Year");
+            Year.appendChild(doc.createTextNode(yearStr));
+            Song.appendChild(Year);
+        }
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(
+                    new FileOutputStream(file, false));
+            transformer.transform(source, result);
+            System.out.println("File saved!");
+            } catch (ParserConfigurationException pce) {
+                pce.printStackTrace();
+            } catch (TransformerException tfe) {
+                tfe.printStackTrace();
+            } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 
