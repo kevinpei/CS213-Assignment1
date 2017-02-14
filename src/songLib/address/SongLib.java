@@ -71,6 +71,19 @@ public class SongLib {
         if (result.get() == ButtonType.OK) {
             if (selectedIndex >= 0) {
                 songTable.getItems().remove(selectedIndex);
+                if (selectedIndex >= songTable.getItems().size()) {
+        			songTable.getSelectionModel().select(selectedIndex);
+        			songTable.getFocusModel().focus(selectedIndex);
+        			showSongDetails(songTable.getItems().get(selectedIndex));
+                } else {
+                	if (songTable.getItems().size() == 0) {
+            			showSongDetails(null);
+                	} else {
+                		songTable.getSelectionModel().select(selectedIndex - 1);
+            			songTable.getFocusModel().focus(selectedIndex - 1);
+            			showSongDetails(songTable.getItems().get(selectedIndex - 1));
+                	}
+                }
             } else {
                 // Nothing selected.
                 Alert alert = new Alert(AlertType.WARNING);
@@ -84,31 +97,74 @@ public class SongLib {
         }
     }
 
-    private static void linearAddition(ObservableList<Song> list, Song s) {
+    private static int linearAddition(ObservableList<Song> list, Song s) {
         if (list.size() == 0) {
             list.add(s);
-            return;
+            return 0;
         }
         int i = 0;
         while (i < list.size()) {
             if (s.getName().compareTo(list.get(i).getName()) == 0 && s.getArtist().compareTo(list.get(i).getArtist()) == 0) {
-                //error
-                return;
+                return -1;
             }
             if (s.getName().compareTo(list.get(i).getName()) < 0) {
                 list.add(i, s);
-                return;
+                return i;
             }
             i++;
         }
         list.add(s);
+        return list.size() - 1;
     }
 
+    public static boolean isInteger(String s) {
+    	if (s.charAt(0) == '-' || Character.isDigit(s.charAt(0))) {
+    		for(int i = 1; i < s.length(); i++) {
+                if (Character.isDigit(s.charAt(i)) == false) {
+                	return false;
+                }
+            }
+    		return true;
+    	}
+        return false;
+    }
+    
+    @FXML private void additionError() {
+    	Alert alert = new Alert(AlertType.WARNING);
+        alert.initOwner(mainApp.getPrimaryStage());
+        alert.setTitle("Invalid Song");
+        alert.setHeaderText("Same song is already present");
+        alert.setContentText("A song with this title and artist already exists.");
+
+        alert.showAndWait();
+    }
+    
+    private void songCheck(int check) {
+    	if (check != -1) {
+			songTable.getSelectionModel().select(check);
+			songTable.getFocusModel().focus(check);
+			showSongDetails(songTable.getItems().get(check));
+		} else {
+			additionError();
+		}
+    }
+    
     @FXML private void addSong() {
         if (isInputValid()) {
             String name = nameText.getText();
             String artist = artistText.getText();
             String album = albumText.getText();
+            if (yearText.getText().length() != 0) {
+            	if (isInteger(yearText.getText()) == false) {
+            		Alert alert = new Alert(AlertType.WARNING);
+                    alert.initOwner(mainApp.getPrimaryStage());
+                    alert.setTitle("Invalid Year");
+                    alert.setHeaderText("Year is not an Integer");
+                    alert.setContentText("Please enter an integer for Year or leave it blank.");
+
+                    alert.showAndWait();
+            	}
+            }
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.initOwner(mainApp.getPrimaryStage());
             alert.setTitle("Add?");
@@ -116,22 +172,21 @@ public class SongLib {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK) {
                 if (yearText.getText().length() != 0) {
-                    int year = Integer.parseInt(yearText.getText());
-                    if (album == null) {
-                        linearAddition(songTable.getItems(), new Song(name, artist, year));
-                    } else {
-                        linearAddition(songTable.getItems(), new Song(name, artist, album, year));
-                    }
+                		int year = Integer.parseInt(yearText.getText());
+                		if (album == null) {
+                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, year)));
+                		} else {
+                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, album, year)));
+                		}
                 } else {
                     if (album == null) {
-                        linearAddition(songTable.getItems(), new Song(name, artist));
+            			songCheck(linearAddition(songTable.getItems(), new Song(name, artist)));
                     } else {
-                        linearAddition(songTable.getItems(), new Song(name, artist, album));
+            			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, album)));
                     }
                 }
             }
         }
-        showSongDetails(null);
     }
 
     @FXML private void editSong() {
@@ -139,7 +194,21 @@ public class SongLib {
         String name = nameText.getText();
         String artist = artistText.getText();
         String album = albumText.getText();
-        int year = Integer.parseInt(yearText.getText());
+        int year = 0;
+        if (yearText.getText().length() != 0) {
+        	if (isInteger(yearText.getText()) == true) {
+        		year = Integer.parseInt(yearText.getText());
+        	} else {
+        		Alert alert = new Alert(AlertType.WARNING);
+                alert.initOwner(mainApp.getPrimaryStage());
+                alert.setTitle("Invalid Year");
+                alert.setHeaderText("Year is not an Integer");
+                alert.setContentText("Please enter an integer for Year or leave it blank.");
+
+                alert.showAndWait();
+                return;
+        	}
+        }
         if (selectedIndex >= 0){
             if(isInputValid()) {
                 Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -149,20 +218,20 @@ public class SongLib {
                 Optional<ButtonType> result = alert.showAndWait();
                 if (result.get() == ButtonType.OK) {
                     if (yearText.getText().length() != 0) {
-                        if (album == null) {
-                            songTable.getItems().remove(selectedIndex);
-                            linearAddition(songTable.getItems(), new Song(name, artist, year));
-                        } else {
-                            songTable.getItems().remove(selectedIndex);
-                            linearAddition(songTable.getItems(), new Song(name, artist, album, year));
-                        }
+                    	if (album == null) {
+                    		songTable.getItems().remove(selectedIndex);
+                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, year)));
+                    	} else {
+                    		songTable.getItems().remove(selectedIndex);
+                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, album, year)));
+                    	}
                     } else {
                         if (album == null) {
                             songTable.getItems().remove(selectedIndex);
-                            linearAddition(songTable.getItems(), new Song(name, artist));
+                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist)));
                         } else {
                             songTable.getItems().remove(selectedIndex);
-                            linearAddition(songTable.getItems(), new Song(name, artist, album));
+                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, album)));
                         }
                     }
                 }
@@ -217,6 +286,7 @@ public class SongLib {
             return false;
         }
     }
+
     public ObservableList<Song> returnSongList(){
         return songTable.getItems();
     }
