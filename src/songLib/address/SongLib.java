@@ -71,7 +71,7 @@ public class SongLib {
         if (result.get() == ButtonType.OK) {
             if (selectedIndex >= 0) {
                 songTable.getItems().remove(selectedIndex);
-                if (selectedIndex >= songTable.getItems().size()) {
+                if (selectedIndex < songTable.getItems().size()) {
         			songTable.getSelectionModel().select(selectedIndex);
         			songTable.getFocusModel().focus(selectedIndex);
         			showSongDetails(songTable.getItems().get(selectedIndex));
@@ -238,30 +238,6 @@ public class SongLib {
             }
         }
     }
-		/*int selectedIndex = songTable.getSelectionModel().getSelectedIndex();
-	    if (selectedIndex >= 0) {
-	    	if (isInputValid()) {
-	        	songTable.getItems().get(selectedIndex).setName(nameText.getText());
-	        	songTable.getItems().get(selectedIndex).setArtist(artistText.getText());
-	        	if (albumText.getText() != null) {
-	        		songTable.getItems().get(selectedIndex).setAlbum(albumText.getText());
-	        	}
-	        	if (yearText.getText() != null) {
-	        		songTable.getItems().get(selectedIndex).setYear(Integer.parseInt(yearText.getText()));
-	        	}
-	        }
-	        showSongDetails(songTable.getSelectionModel().getSelectedItem());
-	    } else {
-	        // Nothing selected.
-	        Alert alert = new Alert(AlertType.WARNING);
-	        alert.initOwner(mainApp.getPrimaryStage());
-	        alert.setTitle("No Selection");
-	        alert.setHeaderText("No Song Selected");
-	        alert.setContentText("Please select a song in the table.");
-
-	        alert.showAndWait();
-	    }
-    }*/
 
     private boolean isInputValid() {
         String errorMessage = "";
