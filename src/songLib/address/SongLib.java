@@ -1,281 +1,175 @@
+//Created by Kevin Pei and Andrew Dos Reis
+
 package songLib.address;
 
-import java.util.*;
+import java.io.*;
 
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import songLib.address.MainApp;
-import songLib.address.Song;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import songLib.address.model.Song;
+import javafx.collections.*;
 
-public class SongLib {
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
-    @FXML private TableView<Song> songTable;
-    @FXML private TableColumn<Song, String> nameColumn;
-    @FXML private TextField nameText;
-    @FXML private TextField artistText;
-    @FXML private TextField albumText;
-    @FXML private TextField yearText;
-    @FXML private MainApp mainApp = new MainApp();
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+
+public class SongLib extends Application {
+
+    private Stage primaryStage;
+    private ObservableList<Song> songs = FXCollections.observableArrayList();
+
+    //The SongLib constructor
     public SongLib() {
     }
 
-    @FXML private void initialize() {
-        // Initialize the person table with the two columns.
-        nameColumn.setCellValueFactory(cellData -> cellData.getValue().getNameProperty());
-        songTable.setItems(mainApp.getSongData());
+    /**	
+     * This method reads from songList.xml and populates our songs ObservableList with those songs.
+     * This is where we load saved song data. 
+     */
+    public ObservableList<Song> getSongData() {
+    	//This is where the save data is found.
+        File file = new File("src/songLib/address/songList.xml");
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document document = db.parse(file);
+            NodeList nList = document.getElementsByTagName("Song");
+            for (int temp = 0; temp < nList.getLength(); temp++) {
 
-        showSongDetails(null);
+                Node nNode = nList.item(temp);
+                
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 
-        // Listen for selection changes and show the person details when changed.
-        songTable.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> showSongDetails(newValue));
+                    Element eElement = (Element) nNode;
+
+                   String title = eElement.getElementsByTagName("Title").item(0).getTextContent();
+                   String artist = eElement.getElementsByTagName("Artist").item(0).getTextContent();
+                   String album = eElement.getElementsByTagName("Album").item(0).getTextContent();
+                   int year;
+                   if(eElement.getElementsByTagName("Year").item(0).getTextContent().length() != 0) {
+                       year = Integer.parseInt(eElement.getElementsByTagName("Year").item(0).getTextContent());
+                   }
+                   else{
+                       year = 0;
+                   }
+                   songs.add(new Song(title,artist,album,year));
+                }
+            }
+        }catch (Exception e) {
+        e.printStackTrace();
+    }
+        return songs;
     }
 
-    public void setMainApp(MainApp mainApp) {
-        this.mainApp = mainApp;
-
-        // Add observable list data to the table
-        songTable.setItems(mainApp.getSongData());
+    //This method overrides the default start method.
+    @Override public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+        //We call the window "Song Library".
+        this.primaryStage.setTitle("Song Library");
+        showSongOverview();
+        //We set the window to not be resizable to avoid formatting errors.
+        primaryStage.setResizable(false);
     }
 
-    private void showSongDetails(Song song) {
-        if (song != null) {
-            // Fill the labels with info from the person object.
-            nameText.setText(song.getName());
-            artistText.setText(song.getArtist());
-            albumText.setText(song.getAlbum());
-            yearText.setText(String.format("%d", song.getYear()));
+    //This shows the main window.
+    public void showSongOverview() {
+        try {
+            // Load the song library xml file.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(SongLib.class.getResource("view/SongLib.fxml"));
+            AnchorPane songOverview = (AnchorPane) loader.load();
+            Scene scene = new Scene(songOverview);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+            // Give the controller access to the main app.
+            SongLibController controller = loader.getController();
+            controller.setMainApp(this);
+            controller.selectSong();
 
-
-            // TODO: We need a way to convert the birthday into a String!
-            // birthdayLabel.setText(...);
-        } else {
-            // Person is null, remove all the text.
-            nameText.setText("");
-            artistText.setText("");
-            albumText.setText("");
-            yearText.setText("");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    @FXML private void deleteSong() {
-        int selectedIndex = songTable.getSelectionModel().getSelectedIndex();
-        Alert confirm = new Alert(AlertType.CONFIRMATION);
-        confirm.initOwner(mainApp.getPrimaryStage());
-        confirm.setTitle("Delete?");
-        confirm.setHeaderText("Do you wish to delete the selected song?");
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            if (selectedIndex >= 0) {
-                songTable.getItems().remove(selectedIndex);
-                if (selectedIndex < songTable.getItems().size()) {
-        			songTable.getSelectionModel().select(selectedIndex);
-        			songTable.getFocusModel().focus(selectedIndex);
-        			showSongDetails(songTable.getItems().get(selectedIndex));
-                } else {
-                	if (songTable.getItems().size() == 0) {
-            			showSongDetails(null);
-                	} else {
-                		songTable.getSelectionModel().select(selectedIndex - 1);
-            			songTable.getFocusModel().focus(selectedIndex - 1);
-            			showSongDetails(songTable.getItems().get(selectedIndex - 1));
-                	}
-                }
+    /**
+     * Returns the main stage.
+     */
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+    //This method overrides the default stop method.
+    @Override public void stop() {
+    	/**	
+         * This method deletes the previous songList.xml file and creates a new one.
+         * This is how we save the current song list.
+         */
+        File file = new File("src/songLib/address/songList.xml");
+        file.delete();
+        ObservableList<Song> exitList = songs;
+        try {
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.newDocument();
+        Element rootElement = doc.createElement("List");
+        doc.appendChild(rootElement);
+        //For each song in the list, we create a new line for it.
+        for (Song song : exitList) {
+            String title = song.getName();
+            String artist = song.getArtist();
+            String album = song.getAlbum();
+            int year = song.getYear();
+            String yearStr;
+            if (year == 0) {
+                yearStr = "";
             } else {
-                // Nothing selected.
-                Alert alert = new Alert(AlertType.WARNING);
-                alert.initOwner(mainApp.getPrimaryStage());
-                alert.setTitle("No Selection");
-                alert.setHeaderText("No Song Selected");
-                alert.setContentText("Please select a song in the table.");
-
-                alert.showAndWait();
+                yearStr = Integer.toString(year);
             }
-        }
-    }
 
-    private static int linearAddition(ObservableList<Song> list, Song s) {
-        if (list.size() == 0) {
-            list.add(s);
-            return 0;
+            Element Song = doc.createElement("Song");
+            rootElement.appendChild(Song);
+            Element Title = doc.createElement("Title");
+            Title.appendChild(doc.createTextNode(title));
+            Song.appendChild(Title);
+            Element Artist = doc.createElement("Artist");
+            Artist.appendChild(doc.createTextNode(artist));
+            Song.appendChild(Artist);
+            Element Album = doc.createElement("Album");
+            Album.appendChild(doc.createTextNode(album));
+            Song.appendChild(Album);
+            Element Year = doc.createElement("Year");
+            Year.appendChild(doc.createTextNode(yearStr));
+            Song.appendChild(Year);
         }
-        int i = 0;
-        while (i < list.size()) {
-            if (s.getName().compareTo(list.get(i).getName()) == 0) {
-            	if (s.getArtist().compareTo(list.get(i).getArtist()) == 0) {
-            		return -1;
-            	} else {
-            		if (s.getArtist().compareTo(list.get(i).getArtist()) < 0) {
-            			list.add(i, s);
-                        return i;
-            		}
-            	}
-            }
-            if (s.getName().compareTo(list.get(i).getName()) < 0) {
-                list.add(i, s);
-                return i;
-            }
-            i++;
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(
+                    new FileOutputStream(file, false));
+            transformer.transform(source, result);
+            } catch (ParserConfigurationException pce) {
+                pce.printStackTrace();
+            } catch (TransformerException tfe) {
+                tfe.printStackTrace();
+            } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-        list.add(s);
-        return list.size() - 1;
-    }
-
-    public static boolean isInteger(String s) {
-    	if (s.charAt(0) == '-' || Character.isDigit(s.charAt(0))) {
-    		for(int i = 1; i < s.length(); i++) {
-                if (Character.isDigit(s.charAt(i)) == false) {
-                	return false;
-                }
-            }
-    		return true;
-    	}
-        return false;
-    }
-    
-    @FXML private void additionError() {
-    	Alert alert = new Alert(AlertType.WARNING);
-        alert.initOwner(mainApp.getPrimaryStage());
-        alert.setTitle("Invalid Song");
-        alert.setHeaderText("Same song is already present");
-        alert.setContentText("A song with this title and artist already exists.");
-
-        alert.showAndWait();
-    }
-    
-    private void songCheck(int check) {
-    	if (check != -1) {
-			songTable.getSelectionModel().select(check);
-			songTable.getFocusModel().focus(check);
-			showSongDetails(songTable.getItems().get(check));
-		} else {
-			additionError();
-		}
-    }
-    
-    @FXML private void addSong() {
-        if (isInputValid()) {
-            String name = nameText.getText();
-            String artist = artistText.getText();
-            String album = albumText.getText();
-            if (yearText.getText().length() != 0) {
-            	if (isInteger(yearText.getText()) == false) {
-            		Alert alert = new Alert(AlertType.WARNING);
-                    alert.initOwner(mainApp.getPrimaryStage());
-                    alert.setTitle("Invalid Year");
-                    alert.setHeaderText("Year is not an Integer");
-                    alert.setContentText("Please enter an integer for Year or leave it blank.");
-
-                    alert.showAndWait();
-            	}
-            }
-            Alert alert = new Alert(AlertType.CONFIRMATION);
-            alert.initOwner(mainApp.getPrimaryStage());
-            alert.setTitle("Add?");
-            alert.setHeaderText("Do you wish to add a song with the given characteristics?");
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == ButtonType.OK) {
-                if (yearText.getText().length() != 0) {
-                		int year = Integer.parseInt(yearText.getText());
-                		if (album == null) {
-                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, year)));
-                		} else {
-                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, album, year)));
-                		}
-                } else {
-                    if (album == null) {
-            			songCheck(linearAddition(songTable.getItems(), new Song(name, artist)));
-                    } else {
-            			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, album)));
-                    }
-                }
-            }
-        }
-    }
-
-    @FXML private void editSong() {
-        int selectedIndex = songTable.getSelectionModel().getSelectedIndex();
-        String name = nameText.getText();
-        String artist = artistText.getText();
-        String album = albumText.getText();
-        int year = 0;
-        if (yearText.getText().length() != 0) {
-        	if (isInteger(yearText.getText()) == true) {
-        		year = Integer.parseInt(yearText.getText());
-        	} else {
-        		Alert alert = new Alert(AlertType.WARNING);
-                alert.initOwner(mainApp.getPrimaryStage());
-                alert.setTitle("Invalid Year");
-                alert.setHeaderText("Year is not an Integer");
-                alert.setContentText("Please enter an integer for Year or leave it blank.");
-
-                alert.showAndWait();
-                return;
-        	}
-        }
-        if (selectedIndex >= 0){
-            if(isInputValid()) {
-                Alert alert = new Alert(AlertType.CONFIRMATION);
-                alert.initOwner(mainApp.getPrimaryStage());
-                alert.setTitle("Edit?");
-                alert.setHeaderText("Do you wish to edit the selected song?");
-                Optional<ButtonType> result = alert.showAndWait();
-                if (result.get() == ButtonType.OK) {
-                    if (yearText.getText().length() != 0) {
-                    	if (album == null) {
-                    		songTable.getItems().remove(selectedIndex);
-                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, year)));
-                    	} else {
-                    		songTable.getItems().remove(selectedIndex);
-                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, album, year)));
-                    	}
-                    } else {
-                        if (album == null) {
-                            songTable.getItems().remove(selectedIndex);
-                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist)));
-                        } else {
-                            songTable.getItems().remove(selectedIndex);
-                			songCheck(linearAddition(songTable.getItems(), new Song(name, artist, album)));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private boolean isInputValid() {
-        String errorMessage = "";
-
-        if (nameText.getText() == null || nameText.getText().length() == 0) {
-            errorMessage += "No valid name!\n";
-        }
-        if (artistText.getText() == null || artistText.getText().length() == 0) {
-            errorMessage += "No valid artist!\n";
-        }
-        if (errorMessage.length() == 0) {
-            return true;
-        } else {
-            // Show the error message.
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.initOwner(mainApp.getPrimaryStage());
-            alert.setTitle("Invalid Fields");
-            alert.setHeaderText("Please address the following issues:");
-            alert.setContentText(errorMessage);
-
-            alert.showAndWait();
-            return false;
-        }
-    }
-    
-    @FXML public ObservableList<Song> returnSongList(){
-        return songTable.getItems();
     }
 
     public static void main(String[] args) {
-
+        launch(args);
     }
-
 }
